@@ -1,0 +1,11 @@
+.bundle
+db/*.sqlite3
+*.log
+tmp/
+.sass-cache/
+vendor/bundle/*
+.project
+.loadpath
+Gemfile.lock
+config/database.yml
+

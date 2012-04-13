@@ -1,0 +1,15 @@
+require 'rubygems'
+require 'bundler/setup'
+
+$:.unshift "#{File.dirname(__FILE__)}/lib"
+require "upload_server"
+
+root = ::File.dirname(__FILE__)
+logfile = ::File.join(root,'log','requests.log')
+require 'logger'
+class ::Logger; alias_method :write, :<<; end
+logger  = ::Logger.new(logfile,'weekly')
+use Rack::CommonLogger, logger
+
+
+run UploadServer::Server
