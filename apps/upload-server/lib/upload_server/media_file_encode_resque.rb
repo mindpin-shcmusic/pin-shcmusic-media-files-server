@@ -8,8 +8,12 @@ class MediaFileEncodeResque
   
   def self.perform(uuid,file_path)
     flv_path = "#{file_path}.flv"
-    VideoUtil.encode_to_flv(file_path,flv_path)
-    params = {:uuid=>uuid,:result=>"SUCCESS"}
+    res = VideoUtil.encode_to_flv(file_path,flv_path)
+    if res
+      params = {:uuid=>uuid,:result=>"SUCCESS"}
+    else
+      params = {:uuid=>uuid,:result=>"FAILURE"}
+    end
     Net::HTTP.post_form(URI.parse('http://dev.sns.yinyue.edu/media_files/encode_complete'),params)
   rescue Exception => ex
     p ex.message

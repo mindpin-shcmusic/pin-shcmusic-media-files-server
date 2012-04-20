@@ -4,4 +4,7 @@ gem 'haml'
 gem 'json'
 gem 'resque'
 gem 'uuidtools'
+gem "activerecord", "3.1.1"
+gem 'mime-types'
+gem 'mysql'
 

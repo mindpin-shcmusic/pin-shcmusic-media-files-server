@@ -1,0 +1,15 @@
+development:
+  adapter: mysql
+  encoding: utf8
+  database: upload_server_development
+  username: root
+  password: root
+  host: localhost
+
+test:
+  adapter: mysql
+  encoding: utf8
+  database: upload_server_test
+  username: root
+  password: root
+  host: localhost

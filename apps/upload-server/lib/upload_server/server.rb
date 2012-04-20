@@ -5,39 +5,59 @@ module UploadServer
     get "/" do
       haml :index
     end
-    
-    options '/upload' do
-      response.headers["Access-Control-Allow-Origin"] = "http://dev.sns.yinyue.edu"
-    end
-    
-    post '/upload' do
-      response.headers["Access-Control-Allow-Origin"] = "http://dev.sns.yinyue.edu"
 
-      # 保存文件
-
-      multi_media = Multimedia.create(params[:file][:filename],params[:file][:tempfile])
-      # 组装文件的 meta 信息
-      meta_info = build_meta_info(multi_media)
-      
-      res = Net::HTTP.post_form(URI.parse('http://dev.sns.yinyue.edu/media_files/create_by_edu'),meta_info)
-      if "200" == res.code
-        res.body
-      else
-        status res.code.to_i
-        res.body
-      end
+    options '/new_upload' do
+      add_cross_domain_response_header
     end
-    
-    def build_meta_info(multi_media)
-      type = params[:file][:type]
+
+    options '/upload_blob' do
+      add_cross_domain_response_header
+    end
+
+    post '/new_upload' do
+      add_cross_domain_response_header
+      file_name = params[:file_name]
+      file_size = params[:file_size]
       creator_id = params[:creator_id]
-      file_name = params[:file][:filename]
-      
-      par = {:name=>file_name,:type=>type,:size=>multi_media.file_size,:uuid=>multi_media.uuid,:creator_id=>creator_id}
-      if multi_media.is_video?
-        par[:video_encode_status] = "ENCODING" 
+    
+      slice_temp_file = SliceTempFile.get_or_create(file_name,file_size,creator_id)
+      if !slice_temp_file.valid?
+        error = slice_temp_file.errors.first
+        status 422
+        return "#{error[0]} #{error[1]}"
       end
-      return par
+      status 200
+      slice_temp_file.saved_size.to_s
+    end
+
+    post '/upload_blob' do
+      begin
+        add_cross_domain_response_header
+        file_name = params[:file_name]
+        file_size = params[:file_size]
+        file_blob = params[:file_blob][:tempfile]
+        creator_id = params[:creator_id]
+      
+        slice_temp_file = SliceTempFile.get(file_name,file_size,creator_id)
+        slice_temp_file.saved(file_blob)
+
+        res = {:saved_size => slice_temp_file.saved_size}
+        if slice_temp_file.is_complete_upload?
+          media_file_json_str = slice_temp_file.create_multi_media
+          res[:media_file] = JSON.parse(media_file_json_str)["media_file"]
+        end
+        status 200
+        res.to_json
+      rescue Exception=>ex
+        p ex.message
+        puts ex.backtrace*"\n"
+        status 500
+        ex.message
+      end
+    end
+
+    def add_cross_domain_response_header
+      response.headers["Access-Control-Allow-Origin"] = "http://dev.sns.yinyue.edu"
     end
     
   end
