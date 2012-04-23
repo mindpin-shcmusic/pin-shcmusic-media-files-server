@@ -1,0 +1,27 @@
+!!! 5
+%html{:lang=>"zh"}
+  %head
+    %meta{:charset=>"utf-8"}
+    %title MINDPIN - 启动项管理
+    = csrf_meta_tags
+    = stylesheet_link_tag 'application'
+    = yield :css
+    = yield :head
+
+  %body.echo.gray
+    .page-wrap
+      .page-container
+        .page-header
+          .title
+            %span.mindpin MINDPIN
+            %span -
+            %span Service Management
+        .page-content
+          = yield
+
+    .page-footer
+      &copy;2011 MINDPIN.
+
+    = javascript_include_tag 'application'
+    = yield :javascript
+    = yield :javascripts

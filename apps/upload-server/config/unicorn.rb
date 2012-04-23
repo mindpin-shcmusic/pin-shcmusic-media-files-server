@@ -1,54 +1,22 @@
-# Sample configuration file for Unicorn (not Rack)
-#
-# See http://unicorn.bogomips.org/Unicorn/Configurator.html for complete
-# documentation.
-SINATRA_ROOT = "/web/shcmusic/pin-shcmusic-media-files-server/apps/upload-server"
-# Use at least one worker per core if you're on a dedicated server,
-# more will usually help for _short_ waits on databases/caches.
+# worker 数量
 worker_processes 3
-
-# Help ensure your application will always spawn in the symlinked
-# "current" directory that Capistrano sets up.
-working_directory SINATRA_ROOT # available in 0.94.0+
-
-# listen on both a Unix domain socket and a TCP port,
-# we use a shorter backlog for quicker failover when busy
- listen "#{SINATRA_ROOT}/tmp/sockets/server.sock", :backlog => 64
-
-# nuke workers after 30 seconds instead of 60 seconds (the default)
+# 日志位置
+stderr_path "/web/shcmusic/logs/unicorn-upload-server-error.log"
+stdout_path "/web/shcmusic/logs/unicorn-upload-server.log"
+# 加载 超时设置 监听
+preload_app true
 timeout 30
+listen '/web/shcmusic/sockets/unicorn-upload-server.sock', :backlog => 2048
+# pid 位置
+pid_file_name = "/web/shcmusic/pids/unicorn-upload-server.pid"
+pid pid_file_name
+#working_directory SINATRA_ROOT # available in 0.94.0+
 
-# feel free to point this anywhere accessible on the filesystem
-
-pid "#{SINATRA_ROOT}/tmp/pids/unicorn.pid"
-
-# relative_path "/test_platform"
-# some applications/frameworks log to stderr or stdout, so prevent
-# them from going to /dev/null when daemonized here:
-stderr_path "#{SINATRA_ROOT}/log/unicorn.stderr.log"
-stdout_path "#{SINATRA_ROOT}/log/unicorn.stdout.log"
-
-# combine REE with "preload_app true" for memory savings
-# http://rubyenterpriseedition.com/faq.html#adapt_apps_for_cow
-preload_app false
+# REE GC
 GC.respond_to?(:copy_on_write_friendly=) and
   GC.copy_on_write_friendly = true
 
 before_fork do |server, worker|
-  # the following is highly recomended for Rails + "preload_app true"
-  # as there's no need for the master process to hold a connection
-  # defined?(ActiveRecord::Base) and
-  #   ActiveRecord::Base.connection.disconnect!
-
-  # The following is only recommended for memory/DB-constrained
-  # installations.  It is not needed if your system can house
-  # twice as many worker_processes as you have configured.
-  #
-  # # This allows a new master process to incrementally
-  # # phase out the old master process with SIGTTOU to avoid a
-  # # thundering herd (especially in the "preload_app false" case)
-  # # when doing a transparent upgrade.  The last worker spawned
-  # # will then kill off the old master process with a SIGQUIT.
   old_pid = "#{server.config[:pid]}.oldbin"
   
   puts 'pid:'
@@ -64,8 +32,6 @@ before_fork do |server, worker|
     rescue Errno::ENOENT, Errno::ESRCH
     end
   end
-  #
-  # # *optionally* throttle the master from forking too quickly by sleeping
   sleep 1
 end
 

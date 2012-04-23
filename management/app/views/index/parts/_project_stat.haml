@@ -1,0 +1,26 @@
+:ruby
+  state     = ProjectManagement.state(project_name)
+  has_start = ProjectManagement.start?(project_name)
+  pid       = ProjectManagement.pid_count(project_name) if has_start
+  log_size  = file_size(ProjectManagement.log_size(project_name))
+  log_path  = project_log_path(:project_name=>project_name)
+  log_time  = jtime(ProjectManagement.log_mtime(project_name))
+  
+  stop_path  = operate_project_path(:operate=>'stop', :project=>project_name)
+  usr2_path  = operate_project_path(:operate=>'usr2_stop', :project=>project_name)
+  start_path = operate_project_path(:operate=>'start',:project=>project_name)
+
+  state_klass = has_start ? 'running' : 'closed'
+
+%td.bold=project_name
+%td{:class=>state_klass}=state
+%td=pid if has_start
+%td=link_to log_size, log_path
+%td=log_time
+
+%td
+  -if has_start
+    =link_to '停止', stop_path, :method=>:post
+    =link_to 'USR2重置', usr2_path, :method=>:post
+  -else
+    =link_to '启动', start_path, :method=>:post

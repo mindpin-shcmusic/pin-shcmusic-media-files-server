@@ -1,0 +1,27 @@
+:ruby
+  state     = ServerManagement.state(server_name)
+  has_start = ServerManagement.start?(server_name)
+  pid       = ServerManagement.pid_count(server_name) if has_start
+
+  state_klass = has_start ? 'running' : 'closed'
+
+%td.bold=server_name
+%td{:class=>state_klass}=state
+%td=pid if has_start
+%td=link_to file_size(ServerManagement.log_size(server_name)),server_log_path(:server_name=>server_name)
+%td=jtime(ServerManagement.log_mtime(server_name))
+%td
+  -if has_start
+    =link_to "停止",operate_server_path(:operate=>"stop",:server=>server_name),:method=>:post
+    -case server_name
+      -when "redis_service"
+        =link_to "查看状态", "redis_stats",:method=>:get
+        =link_to "重置全部", "redis_flushall",:method=>:post
+        =link_to "重置缓存", "redis_cache_flush",:method=>:post
+        =link_to "重置提示", "redis_tip_flush",:method=>:post
+        =link_to "重置队列", "redis_queue_flush",:method=>:post
+      -when "resque_web_service"
+        -link_url = Rails.env.development? ? "http://management.2012.edu.mindpin.com:8282/overview" : "http://management.2012.edu.mindpin.com:8282/overview"
+        =link_to "查看状态", link_url,:target=>"_blank"
+  -else
+    =link_to "开启",operate_server_path(:operate=>"start",:server=>server_name),:method=>:post

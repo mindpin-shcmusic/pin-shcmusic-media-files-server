@@ -1,15 +1,29 @@
+#! /usr/bin/env bash
 
+upload_server_dir=/web/shcmusic/pin-shcmusic-media-files-server/apps/upload-server
 
-app_dir=/web/shcmusic/pin-shcmusic-media-files-server/apps/upload-server
-pid=$app_dir/tmp/pids/unicorn.pid
+upload_server_pid=/web/shcmusic/pids/unicorn-upload-server.pid
 
 sh_dir=`dirname $0`
 . $sh_dir/function.sh
 
 rails_env=$(get_rails_env)
 sh_dir_path=$(get_sh_dir_path)
-cd $app_dir
-case "$1" in
+
+  case "$1" in
+    upload-server)
+     cd $upload_server_dir
+     pid=$upload_server_pid
+     echo "upload_server_dir"
+    ;;
+    *)
+    echo "$1"
+    echo "tip:(upload-server)"
+    exit 5
+    ;;
+  esac
+
+case "$2" in
 	start)
         assert_process_from_pid_file_not_exist $pid
 	echo "start"

@@ -1,5 +1,5 @@
 development:
-  adapter: mysql
+  adapter: mysql2
   encoding: utf8
   database: upload_server_development
   username: root
@@ -7,7 +7,7 @@ development:
   host: localhost
 
 test:
-  adapter: mysql
+  adapter: mysql2
   encoding: utf8
   database: upload_server_test
   username: root

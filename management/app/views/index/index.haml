@@ -1,0 +1,30 @@
+
+-if !flash[:notice].blank?
+  =flash[:notice]
+%table
+  %thead
+    %tr
+      %th PROJECT
+      %th 状态
+      %th PID
+      %th 日志大小
+      %th 日志更新时间
+      %th 操作
+  %tbody
+    %tr=render :partial=>"index/parts/project_stat",:locals=>{:project_name=>"upload-server"}
+    
+
+%table
+  %thead
+    %tr
+      %th SERVICE
+      %th 状态
+      %th PID
+      %th 日志大小
+      %th 日志更新时间
+      %th 操作
+  %tbody
+    %tr=render :partial=>"index/parts/server_stat",:locals=>{:server_name=>"redis_service"}
+    %tr=render :partial=>"index/parts/server_stat",:locals=>{:server_name=>"resque_web_service"}
+
+=link_to "退出登录","/logout"

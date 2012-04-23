@@ -32,7 +32,11 @@ http {
   gzip_types        text/plain application/x-javascript text/css application/xml;
 
   upstream shcmusic-upload-server {
-    server unix:/web/shcmusic/pin-shcmusic-media-files-server/apps/upload-server/tmp/sockets/server.sock fail_timeout=0;
+    server unix:/web/shcmusic/sockets/unicorn-upload-server.sock fail_timeout=0;
+  }
+
+  upstream management-server {
+    server unix:/web/shcmusic/sockets/unicorn-management.sock fail_timeout=0;
   }
 
   # shcmusic-upload-server
@@ -54,6 +58,29 @@ http {
       }
       if (!-f $request_filename) {
         proxy_pass http://shcmusic-upload-server;
+      }
+    }
+  }
+
+  # management
+  server {
+    listen 80;
+    server_name dev.management.uploadmediafile.yinyue.edu;
+    root /web/shcmusic/pin-shcmusic-media-files-server/management/public;
+
+    location / {
+      proxy_pass_header Server;
+      proxy_set_header Host $http_host;
+      proxy_redirect off;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Scheme $scheme;
+      if ($request_uri ~* "\.(ico|css|js|gif|jpg|jpeg|png)\?[0-9A-Za-z]+$") {
+        expires max;
+        break;
+      }
+      if (!-f $request_filename) {
+        proxy_pass http://management-server;
       }
     }
   }
