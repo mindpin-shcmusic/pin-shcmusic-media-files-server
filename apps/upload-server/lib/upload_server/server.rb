@@ -57,7 +57,7 @@ module UploadServer
     end
 
     def add_cross_domain_response_header
-      response.headers["Access-Control-Allow-Origin"] = "http://dev.sns.yinyue.edu"
+      response.headers["Access-Control-Allow-Origin"] = PIN_2012_EDU_SITE
     end
     
   end

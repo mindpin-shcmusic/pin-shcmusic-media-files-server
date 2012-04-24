@@ -19,6 +19,8 @@ require 'upload_server/multi_media'
 require 'upload_server/slice_temp_file'
 require 'upload_server/server'
 
+PIN_2012_EDU_SITE = "http://dev.sns.yinyue.edu"
+
 RAILS_ENV = ENV['RAILS_ENV'] || 'development'
 yaml = YAML.load_file(File.join(File.dirname(__FILE__),"../config/database.yml"))[RAILS_ENV]
 PROJECT_ROOT = File.expand_path('../..',__FILE__)

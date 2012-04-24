@@ -14,7 +14,8 @@ class MediaFileEncodeResque
     else
       params = {:uuid=>uuid,:result=>"FAILURE"}
     end
-    Net::HTTP.post_form(URI.parse('http://dev.sns.yinyue.edu/media_files/encode_complete'),params)
+    url = File.join(PIN_2012_EDU_SITE,"media_files/encode_complete")
+    Net::HTTP.post_form(URI.parse(url),params)
   rescue Exception => ex
     p ex.message
     puts ex.backtrace*"\n"

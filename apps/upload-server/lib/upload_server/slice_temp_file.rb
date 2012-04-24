@@ -44,7 +44,8 @@ class SliceTempFile < ActiveRecord::Base
     # 组装文件的 meta 信息
     meta_info = _build_meta_info(multi_media)
     # 发送文件 meta 信息到 sns
-    res = Net::HTTP.post_form(URI.parse('http://dev.sns.yinyue.edu/media_files/create_by_edu'),meta_info)
+    url = File.join(PIN_2012_EDU_SITE,"media_files/create_by_edu")
+    res = Net::HTTP.post_form(URI.parse(url),meta_info)
     raise "#{res.code} #{res.body}"  if "200" != res.code
     multi_media.into_the_encode_queue_if_is_video
     res.body
