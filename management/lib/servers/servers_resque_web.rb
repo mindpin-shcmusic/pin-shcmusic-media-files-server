@@ -7,7 +7,8 @@ module ServersResqueWeb
     include PathConfig
 
     def resque_web_service_state
-      pid_file_path = "/web/shcmusic/pids/resque_web_service.pid"
+      pid_file_path = File.join(BASE_PATH,"pids/resque_web_service.pid")
+      
       ManagementUtil.check_process_by_pid_file(pid_file_path)
     end
 

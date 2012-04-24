@@ -63,11 +63,11 @@ class ServerManagement
       if !['redis_service','resque_web_service'].include?(server_name)
         raise "#{server_name} 这个 server_name 没有日志"
       end
-      "/web/shcmusic/logs/#{server_name}.log"
+      File.join(BASE_PATH,"logs/#{server_name}.log")
     end
 
     def find_pid_file_path_by_server_name(server_name)
-      return "/web/shcmusic/pids/#{server_name}.pid"
+      File.join(BASE_PATH,"pids/#{server_name}.pid")
     end
   end
 end

@@ -8,7 +8,7 @@ module ServersRedis
 
     REDIS_CLIENT = Redis.new(:thread_safe=>true)
     def redis_service_state
-      pid_file_path = "/web/shcmusic/pids/redis_service.pid"
+      pid_file_path = File.join(BASE_PATH,"pids/redis_service.pid")
       ManagementUtil.check_process_by_pid_file(pid_file_path)
     end
 

@@ -57,7 +57,7 @@ class ProjectManagement
     
     # 根据 工程名 找到 工程进程的 pid文件 的存放路径
     def find_pid_file_path_by_project_name(project_name)
-        "/web/shcmusic/pids/unicorn-#{project_name}.pid"
+      File.join(BASE_PATH,"pids/unicorn-#{project_name}.pid")
     end
 
     def find_log_file_path_by_project_name(project_name)

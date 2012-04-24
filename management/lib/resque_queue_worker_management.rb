@@ -58,7 +58,7 @@ class ResqueQueueWorkerManagement
     end
     
     def get_pid_file_path_by_queue_name(queue_name)
-      "/web/shcmusic/pids/#{queue_name}_worker.pid"
+      File.join(BASE_PATH,"pids/#{queue_name}_worker.pid")
     end
 
     def check_operation_param(operation)
@@ -73,7 +73,7 @@ class ResqueQueueWorkerManagement
 
     def find_log_file_path_by_queue_name(queue_name)
       check_resque_queue_name(queue_name)
-      "/web/shcmusic/logs/#{queue_name}_worker.log"
+      File.join(BASE_PATH,"logs/#{queue_name}_worker.log")
     end
 
     ###################

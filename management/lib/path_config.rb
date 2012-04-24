@@ -1,5 +1,6 @@
 module PathConfig
-  PIN_SHCMUSIC_PATH = File.join(File.dirname(File.expand_path(__FILE__)),"../../")
+  BASE_PATH = File.expand_path("../../../../",__FILE__)
+  PIN_SHCMUSIC_PATH = File.expand_path("../../../",__FILE__)
 
   UNICORN_SH_PATH = File.join(PIN_SHCMUSIC_PATH,"sh")
   WORKER_SH_PATH = File.join(PIN_SHCMUSIC_PATH,"sh/worker_sh")
