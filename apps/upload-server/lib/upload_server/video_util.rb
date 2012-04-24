@@ -1,7 +1,7 @@
 class VideoUtil
 
     def self.get_info(file_path)
-        info_string = `ffmpeg -i #{file_path} 2<&1|grep Stream`
+        info_string = `ffmpeg -i '#{file_path}' 2<&1|grep Stream`
 
         # 分析音频信息
         audio_info_string = info_string.match("Stream.*Audio:([^\n]*)")[1]
@@ -45,14 +45,14 @@ class VideoUtil
     video_bitrate = info[:video][:bitrate].to_i*1000
     audio_bitrate = info[:audio][:bitrate]
     
-    encode_command = "ffmpeg -i #{origin_path} -ar 44100 -ab #{audio_bitrate}   -b:v #{video_bitrate} -s #{size} -r #{fps} -y #{flv_path}" 
+    encode_command = "ffmpeg -i '#{origin_path}' -ar 44100 -ab #{audio_bitrate}   -b:v #{video_bitrate} -s #{size} -r #{fps} -y '#{flv_path}'" 
     
     res = `#{encode_command}; echo $?`
     status = res.gsub("\n","").to_i
     if 0 == status
-        `yamdi -i #{flv_path} -o #{flv_path}.tmp`
-        `rm #{flv_path}`
-        `mv #{flv_path}.tmp #{flv_path}`
+        `yamdi -i '#{flv_path}' -o '#{flv_path}.tmp'`
+        `rm '#{flv_path}'`
+        `mv '#{flv_path}.tmp' '#{flv_path}'`
         return true
     else
         self.record_encode_fail_log(origin_path)

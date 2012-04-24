@@ -3,7 +3,7 @@ source :rubygems
 gem 'sinatra'
 gem 'haml'
 gem 'json'
-gem 'resque'
+gem 'resque','1.19.0'
 gem 'uuidtools'
 gem "activerecord", "3.1.1"
 gem 'mime-types'

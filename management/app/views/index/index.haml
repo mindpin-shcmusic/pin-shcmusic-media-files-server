@@ -27,4 +27,18 @@
     %tr=render :partial=>"index/parts/server_stat",:locals=>{:server_name=>"redis_service"}
     %tr=render :partial=>"index/parts/server_stat",:locals=>{:server_name=>"resque_web_service"}
 
+%table
+  %thead
+    %tr
+      %th RESQUE QUEUE WORKER
+      %th 状态
+      %th PID
+      %th 日志大小
+      %th 日志更新时间
+      %th 操作
+  %tbody
+    -PathConfig::QUEUES.each do |queue,project_name|
+      %tr=render :partial=>"index/parts/resque_queue_worker_stat",:locals=>{:queue_name=>queue,:project_name=>project_name}
+
+
 =link_to "退出登录","/logout"

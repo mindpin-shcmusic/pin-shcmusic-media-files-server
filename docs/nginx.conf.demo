@@ -93,9 +93,7 @@ http {
     # 这里对应
     # upload-server/multi_media.rb
     # 中声明的 /web/shcmusic/upload_file 为资源存放路径
-    location /media_files {
-      root /web/shcmusic/upload_file;
-    }
+    root /web/shcmusic/upload_file;
   }
 
 }

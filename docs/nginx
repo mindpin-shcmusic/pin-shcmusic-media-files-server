@@ -1,0 +1,38 @@
+#!/bin/sh
+
+### BEGIN INIT INFO
+# Provides:       nginx 
+# Required-Start: 
+# Required-Stop:
+# Default-Start:  2 3 5
+# Default-Stop:
+# Description:    Start the nginx server
+### END INIT INFO
+
+NGINX_BIN=/usr/local/nginx/sbin/nginx
+
+case "$1" in
+
+  start)
+    startproc $NGINX_BIN
+    echo "nginx started"
+    ;;
+
+  stop)
+    killproc $NGINX_BIN
+    echo "nginx stoped"
+    ;;
+
+  restart)
+    $0 stop
+    $0 start
+    ;;
+
+  *)
+    echo "Usage: nginx {start|stop|restart}"
+    ;;
+
+esac
+
+exit 0
+

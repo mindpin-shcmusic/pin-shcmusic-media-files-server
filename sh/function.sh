@@ -24,7 +24,7 @@ function assert_process_from_pid_file_not_exist()
 
 function get_rails_env()
 {
-  if [ $HOST == "linux-76bi" ];then
+  if [ $HOST == "linux-nu1l" ];then
     echo "development"
   elif [ $HOST == "linux-mindpin" ];then
     echo "production"

@@ -3,6 +3,7 @@ MindpinEduSns::Application.routes.draw do
 
   post '/operate_project' => 'index#operate_project'
   post '/operate_server'  => 'index#operate_server'
+  post '/operate_resque_queue_worker' => 'index#operate_resque_queue_worker'
   
   get '/redis_stats'     => 'index#redis_stats'
   post '/redis_flushall'    => 'index#redis_flushall'
@@ -12,6 +13,7 @@ MindpinEduSns::Application.routes.draw do
 
   get '/project_log' => 'index#project_log'
   get '/server_log' => 'index#server_log'
+  get '/resque_queue_worker_log' => 'index#resque_queue_worker_log'
 
   get  '/login'    => 'index#login'
   post '/do_login' => 'index#do_login'

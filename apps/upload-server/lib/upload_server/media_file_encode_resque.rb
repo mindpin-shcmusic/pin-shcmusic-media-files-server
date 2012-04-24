@@ -1,5 +1,5 @@
 class MediaFileEncodeResque
-  QUEUE_NAME = :media_file_encode
+  QUEUE_NAME = :media_file_encode_resque_queue
   @queue = QUEUE_NAME 
   
   def self.enqueue(uuid,file_path)

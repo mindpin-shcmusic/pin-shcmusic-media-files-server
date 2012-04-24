@@ -1,0 +1,20 @@
+:ruby
+  state     = ResqueQueueWorkerManagement.state(queue_name)
+  has_start = ResqueQueueWorkerManagement.start?(queue_name)
+  has_pause = ResqueQueueWorkerManagement.pause?(queue_name)
+  pid       = ResqueQueueWorkerManagement.pid_count(queue_name)
+
+  state_klass = has_start ? 'running' : 'closed'
+
+%td.bold=queue_name
+%td{:class=>state_klass}=state
+%td=pid if has_start || has_pause
+%td=link_to file_size(ResqueQueueWorkerManagement.log_size(queue_name)),resque_queue_worker_log_path(:queue_name=>queue_name)
+%td=jtime(ResqueQueueWorkerManagement.log_mtime(queue_name))
+%td
+  -if ResqueQueueWorkerManagement.start?(queue_name)
+    =link_to "停止",operate_resque_queue_worker_path(:operate=>"stop",:queue=>queue_name),:method=>"post"
+  -elsif ResqueQueueWorkerManagement.pause?(queue_name)
+    =link_to "继续",operate_resque_queue_worker_path(:operate=>"cont",:queue=>queue_name),:method=>"post"
+  -else
+    =link_to "开启",operate_resque_queue_worker_path(:operate=>"start",:queue=>queue_name),:method=>"post"
