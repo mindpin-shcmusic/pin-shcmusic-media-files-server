@@ -22,6 +22,11 @@ require 'upload_server/server'
 PIN_2012_EDU_SITE = "http://dev.sns.yinyue.edu"
 
 RAILS_ENV = ENV['RAILS_ENV'] || 'development'
+if !%w(development test production).include?(RAILS_ENV)
+  p "#{RAILS_ENV} 不是合法的 RAILS_ENV， 必须是 development test production 中的一个"
+  exit 1
+end
+
 yaml = YAML.load_file(File.join(File.dirname(__FILE__),"../config/database.yml"))[RAILS_ENV]
 PROJECT_ROOT = File.expand_path('../..',__FILE__)
 ActiveRecord::Base.establish_connection(yaml)
