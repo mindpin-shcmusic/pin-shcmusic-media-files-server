@@ -13,5 +13,6 @@ module PathConfig
 
   QUEUES = [
     "media_file_encode_resque_queue",
+    "merge_slice_temp_file_resque_queue"
   ]
 end

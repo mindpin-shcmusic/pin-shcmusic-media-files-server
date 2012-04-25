@@ -8,7 +8,14 @@ class SliceTempFile < ActiveRecord::Base
     slice_temp_file.saved_blob_num = 0
     slice_temp_file.path = File.join(BASE_PATH,UUIDTools::UUID.random_create.to_s)
   end
-  
+
+  after_save :merge_slice_temp_file_in_queue_if_complete_upload
+  def merge_slice_temp_file_in_queue_if_complete_upload
+    if self.is_complete_upload? && !self.merged?
+      MergeSliceTempFileResque.enqueue(self.id)
+    end
+  end
+
   def self.get_or_create(file_name,file_size,creator_id)
     slice_temp_file = self.get(file_name,file_size,creator_id)
     if slice_temp_file.blank?
@@ -33,7 +40,6 @@ class SliceTempFile < ActiveRecord::Base
     # 记录保存进度
     self.saved_blob_num = self.saved_blob_num+1
     self.saved_size = self.saved_size+file_blob.size
-    _merge_blob if is_complete_upload?
     self.save
   end
 
@@ -65,7 +71,9 @@ class SliceTempFile < ActiveRecord::Base
     self.saved_size >= self.file_size
   end
   
-  def _merge_blob
+  def merge_blob!
+    raise "文件还没有上传完毕" if !is_complete_upload?
+
     File.open(self.file_path,"w") do |f|
       0.upto(self.saved_blob_num-1) do |index|
         blob_path = File.join(self.path,"blob.#{index}")
@@ -73,6 +81,8 @@ class SliceTempFile < ActiveRecord::Base
         f << blob.read
       end
     end
+    self.merged = true
+    self.save
   end
   
   def _new_blob_path

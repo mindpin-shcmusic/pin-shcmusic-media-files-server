@@ -42,10 +42,6 @@ module UploadServer
         slice_temp_file.saved(file_blob)
 
         res = {:saved_size => slice_temp_file.saved_size}
-        if slice_temp_file.is_complete_upload?
-          media_file_json_str = slice_temp_file.create_multi_media
-          res[:media_file] = JSON.parse(media_file_json_str)["media_file"]
-        end
         status 200
         res.to_json
       rescue Exception=>ex
