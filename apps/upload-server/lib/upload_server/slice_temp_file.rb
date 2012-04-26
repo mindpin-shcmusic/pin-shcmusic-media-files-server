@@ -1,10 +1,9 @@
 class SliceTempFile < ActiveRecord::Base
   BASE_PATH = "/web/shcmusic/upload_file/slice_temp_files"
   
-  validates :creator_id, :file_name, :file_size, :saved_size, :saved_blob_num, :presence => true
+  validates :creator_id, :file_name, :file_size, :saved_size, :presence => true
   before_validation(:on => :create) do |slice_temp_file|
     slice_temp_file.saved_size = 0
-    slice_temp_file.saved_blob_num = 0
     slice_temp_file.uuid = UUIDTools::UUID.random_create.to_s
   end
 
@@ -31,10 +30,16 @@ class SliceTempFile < ActiveRecord::Base
     File.join(self.blob_dir, self.file_name)
   end
 
+  def next_blob_path
+    File.join(self.blob_dir,"blob.#{self.saved_size}")
+  end
+
   # 所有文件片段是否全部上传完毕
   def is_complete_upload?
     self.saved_size >= self.file_size
   end
+
+
 
 
 
@@ -57,33 +62,14 @@ class SliceTempFile < ActiveRecord::Base
     end
   end
 
-
-
-  # 当前 slice_temp_file 对应的 media_file_info
-  def media_file_info
-    MediaFileInfo.new(self)
-  end
-
-  # 当前 slice_temp_file 对应的 media_file meta_info
-  def media_file_meta_info
-    media_file_info.to_hash
-  end
-
-
-
-  #### 私有方法
   def _save_new_blob__save_file(file_blob)
-    index = self.saved_blob_num
-    new_blob_path = File.join(self.blob_dir,"blob.#{index}")
-
-    File.open(new_blob_path,"w") do |f|
+    File.open(self.next_blob_path,"w") do |f|
       f << file_blob.read
     end
   end
 
   def _save_new_blob__update_database(file_blob)
-    self.saved_blob_num = self.saved_blob_num+1
-    self.saved_size = self.saved_size+file_blob.size
+    self.saved_size = self.saved_size + file_blob.size
     self.save
   end
 
@@ -95,17 +81,41 @@ class SliceTempFile < ActiveRecord::Base
     JSON.parse(res.body)["media_file"]["id"]
   end
 
+
+
+
+###################################
+
+
+
+
+
+
   # 合并文件片段
   def _merge_blob_files!
     File.open(self.file_path,"w") do |f|
-      0.upto(self.saved_blob_num-1) do |index|
-        blob_path = File.join(self.blob_dir,"blob.#{index}")
-        blob = File.open(blob_path,"r")
-        f << blob.read
+      Dir[File.join(self.blob_dir,"blob.*")].sort {|a, b|
+        a.split(".")[-1].to_i <=> b.split(".")[-1].to_i
+      }.each do |blob_path|
+        File.open(blob_path,"r") do |blob_f|
+          f << blob_f.read
+        end
       end
     end
+
     self.merged = true
     self.save
+  end
+
+
+  # 当前 slice_temp_file 对应的 media_file_info
+  def media_file_info
+    MediaFileInfo.new(self)
+  end
+
+  # 当前 slice_temp_file 对应的 media_file meta_info
+  def media_file_meta_info
+    media_file_info.to_hash
   end
 
 
