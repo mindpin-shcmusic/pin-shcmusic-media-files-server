@@ -1,6 +1,8 @@
 module UploadServer
 end
 
+PIN_2012_EDU_SITE = "http://dev.sns.yinyue.edu"
+
 require 'sinatra/base'
 require "active_record"
 require 'json'
@@ -20,7 +22,6 @@ require 'upload_server/media_file_info'
 require 'upload_server/slice_temp_file'
 require 'upload_server/server'
 
-PIN_2012_EDU_SITE = "http://dev.sns.yinyue.edu"
 
 RAILS_ENV = ENV['RAILS_ENV'] || 'development'
 if !%w(development test production).include?(RAILS_ENV)
