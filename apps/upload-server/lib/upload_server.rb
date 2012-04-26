@@ -16,7 +16,7 @@ require 'upload_server/video_util'
 require 'upload_server/media_file_encode_resque'
 require "upload_server/merge_slice_temp_file_resque"
 
-require 'upload_server/multi_media'
+require 'upload_server/media_file_info'
 require 'upload_server/slice_temp_file'
 require 'upload_server/server'
 

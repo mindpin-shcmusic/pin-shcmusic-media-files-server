@@ -39,8 +39,8 @@ module UploadServer
         creator_id = params[:creator_id]
       
         slice_temp_file = SliceTempFile.get(file_name,file_size,creator_id)
-        slice_temp_file.saved(file_blob)
-
+        slice_temp_file.save_new_blob!(file_blob)
+        
         res = {:saved_size => slice_temp_file.saved_size}
         status 200
         res.to_json
