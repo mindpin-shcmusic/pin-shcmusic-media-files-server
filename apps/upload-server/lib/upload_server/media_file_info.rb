@@ -5,7 +5,7 @@ class MediaFileInfo
   end
 
   def file_name
-    @slice_temp_file.file_name
+    @slice_temp_file.entry_file_name
   end
 
   def content_type
@@ -19,7 +19,7 @@ class MediaFileInfo
     return {
       :name       => file_name,
       :type       => content_type,
-      :size       => @slice_temp_file.file_size,
+      :size       => @slice_temp_file.entry_file_size,
       :creator_id => slice_temp_file.creator_id,
 
       :video_encode_status => VideoUtil.is_video?(file_name) ? "ENCODING" : nil

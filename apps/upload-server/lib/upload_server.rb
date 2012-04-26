@@ -5,6 +5,7 @@ PIN_2012_EDU_SITE = "http://dev.sns.yinyue.edu"
 
 require 'sinatra/base'
 require "active_record"
+require "paperclip"
 require 'json'
 require 'haml'
 require 'yaml'
