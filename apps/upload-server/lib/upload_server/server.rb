@@ -20,14 +20,14 @@ module UploadServer
       file_size = params[:file_size]
       creator_id = params[:creator_id]
     
-      slice_temp_file = SliceTempFile.get_or_create(file_name,file_size,creator_id)
-      if !slice_temp_file.valid?
-        error = slice_temp_file.errors.first
-        status 422
-        return "#{error[0]} #{error[1]}"
+      slice_temp_file = SliceTempFile.find_or_create(file_name,file_size,creator_id)
+      if slice_temp_file.valid?
+        status 200
+        return slice_temp_file.saved_size.to_s
       end
-      status 200
-      slice_temp_file.saved_size.to_s
+
+      status 422
+      return slice_temp_file.errors.to_json
     end
 
     post '/upload_blob' do
@@ -39,7 +39,7 @@ module UploadServer
         creator_id = params[:creator_id]
       
         slice_temp_file = SliceTempFile.get(file_name,file_size,creator_id)
-        slice_temp_file.save_new_blob!(file_blob)
+        slice_temp_file.save_new_blob(file_blob)
         
         res = {:saved_size => slice_temp_file.saved_size}
         status 200
