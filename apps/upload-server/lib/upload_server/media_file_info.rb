@@ -9,9 +9,7 @@ class MediaFileInfo
   end
 
   def content_type
-    MIME::Types.type_for(file_name).first.content_type
-  rescue
-    "application/unknown"
+    file_content_type(file_name)
   end
 
   # 发送给 sns 用来创建 media_file 记录的 meta_info
