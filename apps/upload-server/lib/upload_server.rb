@@ -35,5 +35,3 @@ PROJECT_ROOT = File.expand_path('../..',__FILE__)
 ActiveRecord::Base.establish_connection(yaml)
 
 
-
-

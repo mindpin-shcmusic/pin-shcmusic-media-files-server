@@ -12,9 +12,11 @@ class SliceTempFile < ActiveRecord::Base
   end
 
   has_attached_file :entry,
-    :styles => {
-      :large => '460x340#',
-      :small => '220x140#'
+    :styles => lambda { |attachment|
+      attachment.instance.is_image? ? {
+        :large => '460x340#',
+        :small => '220x140#'
+      } : {}
     },
     :path => lambda { |attachment| instance = attachment.instance.media_file_path }
 
@@ -22,6 +24,50 @@ class SliceTempFile < ActiveRecord::Base
     File.join(MEDIA_FILE_BASE_PATH, "/#{self.media_file_id}/:style/:basename.:extension")
   end
 
+  def self.media_file_path(media_file_id)
+    dir = SliceTempFile.new(:media_file_id=>media_file_id, :entry_file_name=>'*').entry.path[0...-1]
+    Dir[dir].first
+  end
+
+  CONTENT_TYPES = {
+    :video    => [
+        'avi', 'rm',  'rmvb', 'mp4', 
+        'ogv', 'm4v', 'flv', 'mpeg',
+        '3gp'
+      ].map{|x| file_content_type(x)}.uniq,
+    :audio    => [
+        'mp3', 'wma', 'm4a',  'wav', 
+        'ogg'
+      ].map{|x| file_content_type(x)}.uniq,
+    :image    => [
+        'jpg', 'jpeg', 'bmp', 'png', 
+        'png', 'svg',  'tif', 'gif'
+      ].map{|x| file_content_type(x)}.uniq,
+    :document => [
+        'pdf', 'xls', 'doc', 'ppt'
+      ].map{|x| file_content_type(x)}.uniq
+  }
+
+  def content_kind
+    case self.entry_content_type
+    when *CONTENT_TYPES[:video]
+      :video
+    when *CONTENT_TYPES[:audio]
+      :audio
+    when *CONTENT_TYPES[:image]
+      :image
+    when *CONTENT_TYPES[:document]
+      :document
+    end
+  end
+
+  def is_image?
+    :image == self.content_kind
+  end
+
+  def is_video?
+    :video == self.content_kind
+  end
 
   # 如果找到实例就返回
   # 如果找不到就创建一个新的并返回
@@ -120,8 +166,10 @@ class SliceTempFile < ActiveRecord::Base
     res = Net::HTTP.post_form(self.file_merge_complete_url, {})
     raise "#{res.code} #{res.body}" if '200' != res.code
 
-    # 如果是视频就转码 TODO
-
+    # 如果是视频就转码
+    if is_video?
+      MediaFileEncodeResque.enqueue(self.media_file_id)
+    end
   end
 
 

@@ -11,4 +11,4 @@ config/database.yml
 .DS_Store
 ._.DS_Store
 sh/function.sh
-
+.fseventsd
