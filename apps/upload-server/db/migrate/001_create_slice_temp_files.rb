@@ -11,6 +11,7 @@ class CreateSliceTempFiles < ActiveRecord::Migration
 
       t.integer :saved_size
       t.boolean :merged
+      t.string :real_file_name
       t.timestamps
     end
   end

@@ -8,17 +8,14 @@ class MediaFileInfo
     @slice_temp_file.entry_file_name
   end
 
-  def content_type
-    file_content_type(file_name)
-  end
-
   # 发送给 sns 用来创建 media_file 记录的 meta_info
   def to_hash
     return {
-      :name       => file_name,
-      :type       => content_type,
-      :size       => @slice_temp_file.entry_file_size,
-      :creator_id => slice_temp_file.creator_id,
+      :entry_file_name       => file_name,
+      :entry_content_type    => file_content_type(file_name),
+      :entry_file_size       => @slice_temp_file.entry_file_size,
+      :real_file_name        => @slice_temp_file.real_file_name,
+      :creator_id            => @slice_temp_file.creator_id,
 
       :video_encode_status => VideoUtil.is_video?(file_name) ? "ENCODING" : nil
     }

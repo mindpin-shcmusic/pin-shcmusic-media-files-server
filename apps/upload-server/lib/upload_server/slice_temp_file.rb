@@ -6,7 +6,7 @@ class SliceTempFile < ActiveRecord::Base
 
   CREATE_MEDIA_FILE_URL = URI.parse File.join(PIN_2012_EDU_SITE, 'media_files/create_by_edu')
   
-  validates :creator_id, :entry_file_name, :entry_file_size, :saved_size, :presence => true
+  validates :creator_id, :entry_file_name, :real_file_name, :entry_file_size, :saved_size, :presence => true
   before_validation(:on => :create) do |slice_temp_file|
     slice_temp_file.saved_size = 0
   end
@@ -74,7 +74,8 @@ class SliceTempFile < ActiveRecord::Base
   def self.find_or_create(file_name,file_size, creator_id)
     self.get(file_name, file_size, creator_id) ||
     self.create(
-      :entry_file_name => file_name,
+      :real_file_name  => file_name,
+      :entry_file_name => get_randstr_filename(file_name),
       :entry_file_size => file_size,
       :creator_id      => creator_id
     )
@@ -82,7 +83,7 @@ class SliceTempFile < ActiveRecord::Base
   
   def self.get(file_name,file_size,creator_id)
     self.where(
-      :entry_file_name => file_name,
+      :real_file_name => file_name,
       :entry_file_size => file_size,
       :creator_id      => creator_id
     ).first
