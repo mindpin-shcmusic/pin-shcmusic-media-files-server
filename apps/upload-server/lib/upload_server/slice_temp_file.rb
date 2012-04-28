@@ -155,7 +155,7 @@ class SliceTempFile < ActiveRecord::Base
         File.open(blob_path, 'r') { |blob_f| f << blob_f.read }
       }
     }
-
+    # 把合并的文件放到 media_file 应该存放的位置
     self.entry  = File.open(self.file_path, 'r')
     self.merged = true
     self.save
@@ -163,7 +163,9 @@ class SliceTempFile < ActiveRecord::Base
     # 发送 创建完成状态 给 sns
     res = Net::HTTP.post_form(self.file_merge_complete_url, {})
     raise "#{res.code} #{res.body}" if '200' != res.code
-
+    # 删除文件片段
+    FileUtils.rm_rf(self.blob_dir)
+    self.delete
     # 如果是视频就转码
     if is_video?
       MediaFileEncodeResque.enqueue(self.media_file_id)
