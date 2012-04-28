@@ -2,7 +2,7 @@ class SliceTempFile < ActiveRecord::Base
   include Paperclip::Glue
 
   BASE_PATH             = '/web/shcmusic/upload_file/slice_temp_files'
-  MEDIA_FILE_BASE_PATH  = '/web/shcmusic/upload_file/media_files/files/'
+  MEDIA_FILE_BASE_PATH  = '/web/shcmusic/upload_file/media_files/entries/'
 
   CREATE_MEDIA_FILE_URL = URI.parse File.join(PIN_2012_EDU_SITE, 'media_files/create_by_edu')
   
