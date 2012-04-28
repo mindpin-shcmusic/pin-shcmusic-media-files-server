@@ -1,10 +1,7 @@
 class SliceTempFile < ActiveRecord::Base
   include Paperclip::Glue
 
-  BASE_PATH             = '/web/shcmusic/upload_file/slice_temp_files'
-  MEDIA_FILE_BASE_PATH  = '/web/shcmusic/upload_file/media_files/entries/'
-
-  CREATE_MEDIA_FILE_URL = URI.parse File.join(PIN_2012_EDU_SITE, 'media_files/create_by_edu')
+  CREATE_MEDIA_FILE_URL = URI.parse File.join(R::EDU_SNS_SITE, 'media_files/create_by_edu')
   
   validates :creator_id, :entry_file_name, :real_file_name, :entry_file_size, :saved_size, :presence => true
   before_validation(:on => :create) do |slice_temp_file|
@@ -21,7 +18,7 @@ class SliceTempFile < ActiveRecord::Base
     :path => lambda { |attachment| instance = attachment.instance.media_file_path }
 
   def media_file_path
-    File.join(MEDIA_FILE_BASE_PATH, "/#{self.media_file_id}/:style/:basename.:extension")
+    File.join(R::MEDIA_FILE_BASE_DIR, "/#{self.media_file_id}/:style/:basename.:extension")
   end
 
   def self.media_file_path(media_file_id)
@@ -91,7 +88,7 @@ class SliceTempFile < ActiveRecord::Base
 
   # 当前 slice_temp_file 的 文件片段的存放路径
   def blob_dir
-    dir = File.join(BASE_PATH, self.id.to_s)
+    dir = File.join(R::SLICE_TEMP_FILE_BASE_DIR, self.id.to_s)
     FileUtils.mkdir_p(dir)
     dir
   end
@@ -111,7 +108,7 @@ class SliceTempFile < ActiveRecord::Base
   end
 
   def file_merge_complete_url
-    URI.parse File.join(PIN_2012_EDU_SITE, "media_files/#{self.media_file_id}/file_merge_complete")
+    URI.parse File.join(R::EDU_SNS_SITE, "media_files/#{self.media_file_id}/file_merge_complete")
   end
 
   # -------------

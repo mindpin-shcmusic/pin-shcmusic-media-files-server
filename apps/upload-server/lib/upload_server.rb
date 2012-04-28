@@ -1,7 +1,6 @@
+require 'upload_server/r'
 module UploadServer
 end
-
-PIN_2012_EDU_SITE = "http://dev.sns.yinyue.edu"
 
 require 'sinatra/base'
 require "active_record"
