@@ -6,10 +6,10 @@ class CreateSliceTempFiles < ActiveRecord::Migration
 
       t.string :entry_file_name
       t.string :entry_content_type
-      t.integer :entry_file_size
+      t.integer :entry_file_size, :limit => 8
       t.datetime :entry_updated_at
 
-      t.integer :saved_size
+      t.integer :saved_size, :limit => 8
       t.boolean :merged
       t.string :real_file_name
       t.timestamps
