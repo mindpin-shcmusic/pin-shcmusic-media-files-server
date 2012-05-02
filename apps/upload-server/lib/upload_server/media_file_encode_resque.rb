@@ -11,6 +11,7 @@ class MediaFileEncodeResque
 
     flv_path = "#{file_path}.flv"
     res = VideoUtil.encode_to_flv(file_path,flv_path)
+    VideoUtil.screenshot(file_path,File.dirname(file_path))
     params = res ? {:result=>"SUCCESS"} : {:result=>"FAILURE"}
     url = File.join(R::EDU_SNS_SITE,"media_files/#{media_file_id}/encode_complete")
     Net::HTTP.post_form(URI.parse(url),params)
