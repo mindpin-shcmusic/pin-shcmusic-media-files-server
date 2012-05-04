@@ -111,6 +111,9 @@ class SliceTempFile < ActiveRecord::Base
     URI.parse File.join(R::EDU_SNS_SITE, "media_files/#{self.media_file_id}/file_merge_complete")
   end
 
+  def file_copy_complete_url
+    URI.parse File.join(R::EDU_SNS_SITE, "media_files/#{self.media_file_id}/file_copy_complete")
+  end
   # -------------
 
 
@@ -127,16 +130,20 @@ class SliceTempFile < ActiveRecord::Base
 
     # 如果所有文件片段都已经上传完毕，就合并文件并创建 media_file
     if is_complete_upload?
-      # 发送 media_file_meta_info 到 sns
-      res = Net::HTTP.post_form(CREATE_MEDIA_FILE_URL, media_file_info.to_hash)
-      raise "#{res.code} #{res.body}" if '200' != res.code
-
-      self.media_file_id = JSON.parse(res.body)['media_file']['id']
-      self.save
+      self.create_meida_file
 
       # 发送任务到合并队列
       MergeSliceTempFileResque.enqueue(self.id)
     end
+  end
+
+  def create_meida_file
+    # 发送 media_file_meta_info 到 sns
+    res = Net::HTTP.post_form(CREATE_MEDIA_FILE_URL, media_file_info.to_hash)
+    raise "#{res.code} #{res.body}" if '200' != res.code
+
+    self.media_file_id = JSON.parse(res.body)['media_file']['id']
+    self.save
   end
 
   # 当前 slice_temp_file 对应的 media_file_info
@@ -161,15 +168,68 @@ class SliceTempFile < ActiveRecord::Base
     self.save
 
     # 发送 创建完成状态 给 sns
-    res = Net::HTTP.post_form(self.file_merge_complete_url, {})
-    raise "#{res.code} #{res.body}" if '200' != res.code
-    # 删除文件片段
-    FileUtils.rm_rf(self.blob_dir)
-    self.delete
+    self.post_merge_complete_url
     # 如果是视频就转码
     if is_video?
       MediaFileEncodeResque.enqueue(self.media_file_id)
     end
+  end
+
+  def create_copy_media_file(media_file_id)
+    self.create_meida_file
+    # 发送任务到复制队列
+    CopyMediaFileResque.enqueue(self.id,media_file_id)
+  end
+
+  def copy_media_file_and_post_status(copy_media_file_id)
+    src_origin_path = SliceTempFile.media_file_path(copy_media_file_id)
+    src_flv_path = "#{src_origin_path}.flv"
+
+    # 复制MD5相同的文件到 slice_temp_file 合并的文件位置
+    FileUtils.cp(src_origin_path,  self.file_path)
+    # 把复制的文件放到 media_file 应该存放的位置
+    self.entry  = File.open(self.file_path, 'r')
+    self.merged = true
+    self.save
+
+    dest_origin_path = self.entry.path(:original)
+    dest_flv_path = "#{dest_origin_path}.flv"
+    # 复制 flv 文件
+    if File.exists?(src_flv_path)
+      FileUtils.cp(src_flv_path,  dest_flv_path)
+    end
+
+    # 复制其他文件，如截图文件
+    src_dir = File.dirname(src_origin_path)
+    src_files = Dir[File.join(src_dir,"*")]
+    src_files.delete(src_origin_path)
+    src_files.delete(src_flv_path)
+    src_files.each do |file_path|
+      file_name = File.basename(file_path)
+      dest_origin_dir = File.dirname(dest_origin_path)
+      dest_file_path = File.join(dest_origin_dir,  file_name)
+      FileUtils.cp(file_path,  dest_file_path)
+    end
+
+    self.post_copy_complete_url(copy_media_file_id)
+  end
+
+  def post_copy_complete_url(copy_media_file_id)
+    res = Net::HTTP.post_form(self.file_copy_complete_url, {:copy_media_file_id=>copy_media_file_id})
+    raise "#{res.code} #{res.body}" if '200' != res.code
+    # 删除文件片段
+    FileUtils.rm_rf(self.blob_dir)
+    self.delete
+  end
+
+  def post_merge_complete_url
+    # 发送 创建完成状态 给 sns
+    md5 = `md5sum '#{self.entry.path}'`.split(" ").first
+    res = Net::HTTP.post_form(self.file_merge_complete_url, {:md5=>md5})
+    raise "#{res.code} #{res.body}" if '200' != res.code
+    # 删除文件片段
+    FileUtils.rm_rf(self.blob_dir)
+    self.delete
   end
 
 

@@ -14,6 +14,10 @@ module UploadServer
       add_cross_domain_response_header
     end
 
+    options "/copy_media_file" do
+      add_cross_domain_response_header
+    end
+
     post '/new_upload' do
       add_cross_domain_response_header
       file_name = params[:file_name]
@@ -44,6 +48,26 @@ module UploadServer
         res = {:saved_size => slice_temp_file.saved_size}
         status 200
         res.to_json
+      rescue Exception=>ex
+        p ex.message
+        puts ex.backtrace*"\n"
+        status 500
+        ex.message
+      end
+    end
+
+    post "/copy_media_file" do
+      begin
+        add_cross_domain_response_header
+        file_name = params[:file_name]
+        file_size = params[:file_size]
+        creator_id = params[:creator_id]
+        media_file_id = params[:media_file_id]
+
+        slice_temp_file = SliceTempFile.get(file_name,file_size,creator_id)
+        slice_temp_file.create_copy_media_file(media_file_id)
+        status 200
+        slice_temp_file.media_file_id.to_s
       rescue Exception=>ex
         p ex.message
         puts ex.backtrace*"\n"
