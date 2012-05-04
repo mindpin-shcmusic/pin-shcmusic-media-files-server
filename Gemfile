@@ -31,3 +31,5 @@ gem 'unicorn'
 gem 'paperclip', '2.4.5'
 gem 'rmagick'
 
+gem 'streamio-ffmpeg'
+
